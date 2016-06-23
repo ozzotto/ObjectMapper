@@ -61,7 +61,7 @@ public final class Map {
 	/// The Key paramater can be a period separated string (ex. "distance.value") to access sub objects.
 	public subscript(key: String) -> Map {
 		// save key and value associated to it
-		let nested = key.containsString(".")
+		let nested = key.contains(".")
 		return self[key, nested: nested]
 	}
 	
@@ -79,7 +79,7 @@ public final class Map {
 			currentValue = isNSNull ? nil : object
 		} else {
 			// break down the components of the key that are separated by .
-			(isKeyPresent, currentValue) = valueFor(ArraySlice(key.componentsSeparatedByString(".")), dictionary: JSONDictionary)
+			(isKeyPresent, currentValue) = valueFor(keyPathComponents: ArraySlice(key.components(separatedBy: ".")), dictionary: JSONDictionary)
 		}
 		
 		return self
@@ -91,7 +91,7 @@ public final class Map {
 		return currentValue as? T
 	}
 	
-	public func valueOr<T>(@autoclosure defaultValue: () -> T) -> T {
+	public func valueOr<T>( defaultValue: @autoclosure() -> T) -> T {
 		return value() ?? defaultValue()
 	}
 	
@@ -105,9 +105,9 @@ public final class Map {
 			failedCount += 1
 			
 			// Returns dummy memory as a proxy for type `T`
-			let pointer = UnsafeMutablePointer<T>.alloc(0)
-			pointer.dealloc(0)
-			return pointer.memory
+			let pointer = UnsafeMutablePointer<T>.init(allocatingCapacity: 0)
+			pointer.deallocateCapacity(0)
+			return pointer.pointee
 		}
 	}
 	
@@ -130,10 +130,10 @@ private func valueFor(keyPathComponents: ArraySlice<String>, dictionary: [String
 			return (true, nil)
 		} else if let dict = object as? [String : AnyObject] where keyPathComponents.count > 1 {
 			let tail = keyPathComponents.dropFirst()
-			return valueFor(tail, dictionary: dict)
+			return valueFor(keyPathComponents: tail, dictionary: dict)
 		} else if let array = object as? [AnyObject] where keyPathComponents.count > 1 {
 			let tail = keyPathComponents.dropFirst()
-			return valueFor(tail, array: array)
+			return valueFor(keyPathComponents: tail, array: array)
 		} else {
 			return (object != nil, object)
 		}
@@ -160,10 +160,10 @@ private func valueFor(keyPathComponents: ArraySlice<String>, array: [AnyObject])
 				return (true, nil)
 			} else if let array = object as? [AnyObject] where keyPathComponents.count > 1 {
 				let tail = keyPathComponents.dropFirst()
-				return valueFor(tail, array: array)
+				return valueFor(keyPathComponents: tail, array: array)
 			} else if let dict = object as? [String : AnyObject] where keyPathComponents.count > 1 {
 				let tail = keyPathComponents.dropFirst()
-				return valueFor(tail, dictionary: dict)
+				return valueFor(keyPathComponents: tail, dictionary: dict)
 			} else {
 				return (true, object)
 			}

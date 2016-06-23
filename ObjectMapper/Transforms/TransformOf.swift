@@ -38,11 +38,11 @@ public class TransformOf<ObjectType, JSONType>: TransformType {
 		self.toJSON = toJSON
 	}
 
-	public func transformFromJSON(value: AnyObject?) -> ObjectType? {
+	public func transformFromJSON(_ value: AnyObject?) -> ObjectType? {
 		return fromJSON(value as? JSONType)
 	}
 
-	public func transformToJSON(value: ObjectType?) -> JSONType? {
+	public func transformToJSON(_ value: ObjectType?) -> JSONType? {
 		return toJSON(value)
 	}
 }
