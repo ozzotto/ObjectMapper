@@ -38,7 +38,7 @@ public class DateFormatterTransform: TransformType {
 		self.dateFormatter = dateFormatter
 	}
 	
-	public func transformFromJSON(_ value: AnyObject?) -> NSDate? {
+	public func transformFromJSON(_ value: AnyObject?) -> Date? {
 		if let dateString = value as? String {
 			return dateFormatter.date(from: dateString)
 		}
